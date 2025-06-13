@@ -15,7 +15,7 @@ class CountdownScreen extends StatefulWidget {
 class _CountdownScreenState extends State<CountdownScreen> {
   final _hoursController = TextEditingController(text: "0");
   final _minutesController = TextEditingController(text: "0");
-  final _secondsController = TextEditingController(text: "10");
+  final _secondsController = TextEditingController(text: "0");
 
   @override
   void dispose(){
@@ -40,12 +40,12 @@ class _CountdownScreenState extends State<CountdownScreen> {
               return Row(
                 children: [
                   Expanded(
-                    flex: 2,
+                    flex: 4,
                     child: Center(
                       child: Text(
                         _formatDuration(state.remaining),
                         style: TextStyle(
-                          fontSize: 120,
+                          fontSize: 140,
                           fontWeight: FontWeight.bold,
                           color: state.isCompleted ? Colors.greenAccent : Colors.white,
                         ),
@@ -56,49 +56,55 @@ class _CountdownScreenState extends State<CountdownScreen> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _timeInputField("Giờ", _hoursController),
-                          const SizedBox(height: 12),
-                          _timeInputField("Phút", _minutesController),
-                          const SizedBox(height: 12),
-                          _timeInputField("Giây", _secondsController),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: state.isRunning
-                                    ? null
-                                    : () {
-                                  final h = int.tryParse(_hoursController.text) ?? 0;
-                                  final m = int.tryParse(_minutesController.text) ?? 0;
-                                  final s = int.tryParse(_secondsController.text) ?? 0;
-                                  final duration = Duration(hours: h, minutes: m, seconds: s);
-                                  if (duration.inSeconds > 0) {
-                                    context.read<CountdownCubit>().start(duration);
-                                  }
-                                },
-                                icon: const Icon(Icons.play_arrow),
-                                label: const Text("Bắt đầu"),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _timeInputField("Giờ", _hoursController),
+                            const SizedBox(height: 12),
+                            _timeInputField("Phút", _minutesController),
+                            const SizedBox(height: 12),
+                            _timeInputField("Giây", _secondsController),
+                            const SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                    onPressed: state.isRunning
+                                        ? null
+                                        : () {
+                                      final h = int.tryParse(_hoursController.text) ?? 0;
+                                      final m = int.tryParse(_minutesController.text) ?? 0;
+                                      final s = int.tryParse(_secondsController.text) ?? 0;
+                                      final duration = Duration(hours: h, minutes: m, seconds: s);
+                                      if (duration.inSeconds > 0) {
+                                        context.read<CountdownCubit>().start(duration);
+                                      }
+                                    },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    shape: const CircleBorder(),
+                                    padding: const EdgeInsets.all(12),
+                                  ),
+                                  child: const Icon(Icons.play_arrow,color: Colors.white,),),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    context.read<CountdownCubit>().reset();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    shape: const CircleBorder(),
+                                    padding: const EdgeInsets.all(12),
+                                  ),
+                                  child: const Icon(Icons.refresh,color: Colors.white,),
                                 ),
-                              ),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  context.read<CountdownCubit>().reset();
-                                },
-                                icon: const Icon(Icons.refresh),
-                                label: const Text("Đặt lại"),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
+
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -110,6 +116,7 @@ class _CountdownScreenState extends State<CountdownScreen> {
       ),
     );
   }
+
 
    _timeInputField(String label, TextEditingController controller) {
     return Column(
